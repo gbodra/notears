@@ -104,3 +104,17 @@ if __name__ == '__main__':
     acc = utils.count_accuracy(B_true, W_est != 0)
     print(acc)
 
+    import matplotlib.pyplot as plt
+    import networkx as nx
+
+    plt.subplot(2, 1, 1)
+    G_true = nx.from_numpy_matrix(W_true)
+    nx.draw(G_true, node_size=500, with_labels=True, pos=nx.circular_layout(G_true))
+    plt.title('True')
+
+    plt.subplot(2, 1, 2)
+    G_est = nx.from_numpy_matrix(W_est)
+    nx.draw(G_est, node_size=500, with_labels=True, pos=nx.circular_layout(G_est))
+    plt.title('Estimated')
+
+    plt.show()
