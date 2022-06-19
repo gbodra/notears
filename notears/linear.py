@@ -104,3 +104,18 @@ if __name__ == '__main__':
     acc = utils.count_accuracy(B_true, W_est != 0)
     print(acc)
 
+    # Gustavo Bodra: added by me to visualize the original graph and the estimation
+    import matplotlib.pyplot as plt
+    import networkx as nx
+
+    plt.subplot(2, 1, 1)
+    gr_true = nx.from_numpy_matrix(W_true, create_using=nx.DiGraph)
+    nx.draw(gr_true, node_size=500, with_labels=True, pos=nx.circular_layout(gr_true))
+    plt.title('True')
+
+    plt.subplot(2, 1, 2)
+    gr_est = nx.from_numpy_matrix(W_est, create_using=nx.DiGraph)
+    nx.draw(gr_est, node_size=500, with_labels=True, pos=nx.circular_layout(gr_est))
+    plt.title('Estimated')
+
+    plt.show()
