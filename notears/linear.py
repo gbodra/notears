@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy.linalg as slin
 import scipy.optimize as sopt
@@ -86,11 +87,23 @@ def notears_linear(X, lambda1, loss_type, max_iter=100, h_tol=1e-8, rho_max=1e+1
     return W_est
 
 
-if __name__ == '__main__':
+def run_test(n=100, d=20, s0=20, plot=False):
+    """
+    Run tests on the no tears alg
+
+    Args:
+        n (int): num of samples, n=inf mimics population risk
+        d (int): num of nodes
+        s0 (int): expected num of edges
+        plot (bool): check if it should plot the graphs
+    """
     from notears import utils
+    from datetime import datetime
+
+    start_time = datetime.now()
     utils.set_random_seed(1)
 
-    n, d, s0, graph_type, sem_type = 100, 20, 20, 'ER', 'gauss'
+    graph_type, sem_type = 'ER', 'gauss'
     B_true = utils.simulate_dag(d, s0, graph_type)
     W_true = utils.simulate_parameter(B_true)
     np.savetxt('W_true.csv', W_true, delimiter=',')
@@ -103,18 +116,43 @@ if __name__ == '__main__':
     np.savetxt('W_est.csv', W_est, delimiter=',')
     acc = utils.count_accuracy(B_true, W_est != 0)
     print(acc)
+    elapsed_time = datetime.now() - start_time
+    print(f'It took {elapsed_time} to estimate a {d} nodes graph')
 
-    import matplotlib.pyplot as plt
-    import networkx as nx
+    if plot:
+        import matplotlib.pyplot as plt
+        import networkx as nx
 
-    plt.subplot(2, 1, 1)
-    G_true = nx.from_numpy_matrix(W_true)
-    nx.draw(G_true, node_size=500, with_labels=True, pos=nx.circular_layout(G_true))
-    plt.title('True')
+        plt.subplot(2, 1, 1)
+        G_true = nx.from_numpy_matrix(W_true)
+        nx.draw(G_true, node_size=250, with_labels=True, pos=nx.circular_layout(G_true))
+        plt.title('True')
 
-    plt.subplot(2, 1, 2)
-    G_est = nx.from_numpy_matrix(W_est)
-    nx.draw(G_est, node_size=500, with_labels=True, pos=nx.circular_layout(G_est))
-    plt.title('Estimated')
+        plt.subplot(2, 1, 2)
+        G_est = nx.from_numpy_matrix(W_est)
+        nx.draw(G_est, node_size=250, with_labels=True, pos=nx.circular_layout(G_est))
+        plt.title('Estimated')
 
+        plt.show()
+
+    return elapsed_time
+
+
+if __name__ == '__main__':
+    test_input = [(x*5, x, x) for x in range(10, 210, 10)]
+    test_results = []
+    print(test_input)
+    for test in test_input:
+        elapsed_time = run_test(test[0], test[1], test[2])
+        test_results.append((*test, elapsed_time.total_seconds()))
+
+    print(test_results)
+    x = list(zip(*test_results))[1]
+    y = list(zip(*test_results))[3]
+
+    fig, ax = plt.subplots()
+    plt.plot(x, y)
+    ax.set_xlabel('# nodes')
+    ax.set_ylabel('# time to estimate DAG (seconds)')
+    ax.grid(True)
     plt.show()
